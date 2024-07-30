@@ -37,7 +37,7 @@ namespace EventBus.Base.SubManagers
                 _eventTypes.Add(typeof(T));
             }
         }
-
+        //
         private void AddSubscription(Type handlerType, string eventName)
         {
             if (!HasSubscriptionsForEvent(eventName))
