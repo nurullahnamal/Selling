@@ -28,7 +28,8 @@ namespace EventBus.Base.SubManagers
 
         public void AddSubscription<T, TH>() where T : IntegrationEvent where TH : IIntegrationEventHandler<T>
         {
-            var eventName = GetEventKey<T>();
+            var eventName = GetEventKey<T>(); 
+            //
 
             AddSubscription(typeof(TH), eventName);
 
