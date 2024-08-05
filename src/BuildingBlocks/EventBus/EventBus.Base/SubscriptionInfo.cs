@@ -16,7 +16,7 @@ namespace EventBus.Base
             HandlerType = handlerType;
         }
 
-        public static SubscriptionInfo Type(Type handlerType)
+        public static SubscriptionInfo Typed(Type handlerType)
         {
             return new SubscriptionInfo(handlerType);
         }
