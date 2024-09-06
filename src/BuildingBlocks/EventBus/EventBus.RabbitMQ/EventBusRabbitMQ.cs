@@ -5,52 +5,52 @@ using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EventBus.RabbitMQ
 {
     public class EventBusRabbitMQ : BaseEventBus
     {
         RabbitMQPersistentConnection persistentConnection;
-
         private readonly IConnectionFactory connectionFactory;
-
         private readonly IModel consumerChannel;
+
         public EventBusRabbitMQ(EventBusConfig config, IServiceProvider serviceProvider) : base(config, serviceProvider)
         {
-
             if (config.Connection != null)
             {
                 var connJson = JsonConvert.SerializeObject(EventBusConfig.Connection, new JsonSerializerSettings()
                 {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    // Self referencing loop detected for property 
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
+
                 connectionFactory = JsonConvert.DeserializeObject<ConnectionFactory>(connJson);
             }
             else
                 connectionFactory = new ConnectionFactory();
 
             persistentConnection = new RabbitMQPersistentConnection(connectionFactory, config.ConnectionRetryCount);
+
             consumerChannel = CreateConsumerChannel();
+
             SubsManager.OnEventRemoved += SubsManager_OnEventRemoved;
         }
+
         private void SubsManager_OnEventRemoved(object sender, string eventName)
         {
             eventName = ProcessEventName(eventName);
+
             if (!persistentConnection.IsConnected)
             {
                 persistentConnection.TryConnect();
             }
 
-
             consumerChannel.QueueUnbind(queue: eventName,
                 exchange: EventBusConfig.DefaultTopicName,
                 routingKey: eventName);
+
             if (SubsManager.IsEmpty)
             {
                 consumerChannel.Close();
@@ -68,13 +68,14 @@ namespace EventBus.RabbitMQ
                 .Or<SocketException>()
                 .WaitAndRetry(EventBusConfig.ConnectionRetryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
                 {
-
+                    // log
                 });
 
             var eventName = @event.GetType().Name;
             eventName = ProcessEventName(eventName);
 
-            consumerChannel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName, type: "direct");
+            consumerChannel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName, type: "direct"); // Ensure exchange exists while publishing
+
 
             var message = JsonConvert.SerializeObject(@event);
             var body = Encoding.UTF8.GetBytes(message);
@@ -82,22 +83,20 @@ namespace EventBus.RabbitMQ
             policy.Execute(() =>
             {
                 var properties = consumerChannel.CreateBasicProperties();
-                properties.DeliveryMode = 2;
+                properties.DeliveryMode = 2; // persistent
 
-                consumerChannel.QueueDeclare(queue: GetSubName(eventName),
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
-
-
+                consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while publishing
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
 
                 consumerChannel.BasicPublish(
-                exchange: EventBusConfig.DefaultTopicName,
-               routingKey: eventName,
-                 mandatory: true,
-                   basicProperties: properties,
-                body: body);
+                    exchange: EventBusConfig.DefaultTopicName,
+                    routingKey: eventName,
+                    mandatory: true,
+                    basicProperties: properties,
+                    body: body);
             });
         }
 
@@ -113,16 +112,17 @@ namespace EventBus.RabbitMQ
                     persistentConnection.TryConnect();
                 }
 
-                consumerChannel.QueueDeclare(queue: GetSubName(eventName),
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
+                consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while consuming
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
 
                 consumerChannel.QueueBind(queue: GetSubName(eventName),
-                   exchange: EventBusConfig.DefaultTopicName,
-                   routingKey: eventName);
+                                  exchange: EventBusConfig.DefaultTopicName,
+                                  routingKey: eventName);
             }
+
             SubsManager.AddSubscription<T, TH>();
             StartBasicConsume(eventName);
         }
@@ -132,17 +132,18 @@ namespace EventBus.RabbitMQ
             SubsManager.RemoveSubscription<T, TH>();
         }
 
+
         private IModel CreateConsumerChannel()
         {
             if (!persistentConnection.IsConnected)
             {
                 persistentConnection.TryConnect();
-
             }
+
             var channel = persistentConnection.CreateModel();
 
             channel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName,
-                type: "direct");
+                                    type: "direct");
 
             return channel;
         }
@@ -173,8 +174,10 @@ namespace EventBus.RabbitMQ
                 await ProcessEvent(eventName, message);
             }
             catch (Exception ex)
-            {//logging
+            {
+                // logging
             }
+
             consumerChannel.BasicAck(eventArgs.DeliveryTag, multiple: false);
         }
     }
