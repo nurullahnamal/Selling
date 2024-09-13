@@ -8,7 +8,6 @@ namespace EventBus.Base
 {
     public class SubscriptionInfo
     {
-
         public Type HandlerType { get; }
 
         public SubscriptionInfo(Type handlerType)
@@ -19,6 +18,6 @@ namespace EventBus.Base
         public static SubscriptionInfo Typed(Type handlerType)
         {
             return new SubscriptionInfo(handlerType);
-        }
+        } 
     }
 }

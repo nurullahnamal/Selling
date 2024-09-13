@@ -1,6 +1,6 @@
-﻿using EventBus.AzureServiceBas;
-using EventBus.Base;
+﻿using EventBus.AzureServiceBus.EventBus.AzureServiceBus;
 using EventBus.Base.Abstraction;
+using EventBus.Base;
 using EventBus.RabbitMQ;
 using System;
 using System.Collections.Generic;
@@ -10,14 +10,13 @@ using System.Threading.Tasks;
 
 namespace EventBus.Factory
 {
-    public  class EventBusFactory
+    public static class EventBusFactory
     {
-        public static IEventBus Create (EventBusConfig config,IServiceProvider serviceProvider)
+        public static IEventBus Create(EventBusConfig config, IServiceProvider serviceProvider)
         {
-
             return config.EventBusType switch
             {
-                EventBusType.AzureServiceBus =>  new EventBusServiceBus(config, serviceProvider),
+                EventBusType.AzureServiceBus => new EventBusServiceBus(config, serviceProvider),
                 _ => new EventBusRabbitMQ(config, serviceProvider),
             };
         }

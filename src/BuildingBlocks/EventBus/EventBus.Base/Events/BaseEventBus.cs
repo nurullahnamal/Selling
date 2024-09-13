@@ -1,4 +1,4 @@
-﻿using EventBus.Base.Abstraction;
+﻿﻿using EventBus.Base.Abstraction;
 using EventBus.Base.SubManagers;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace EventBus.Base.Events
 {
-    public abstract class BaseEventBus : IEventBus
+    public abstract class BaseEventBus : IEventBus, IDisposable
     {
         public readonly IServiceProvider ServiceProvider;
         public readonly IEventBusSubscriptionManager SubsManager;
 
-        public EventBusConfig EventBusConfig { get; set; }
+        public EventBusConfig EventBusConfig { get; private set; }
 
         public BaseEventBus(EventBusConfig config, IServiceProvider serviceProvider)
         {
@@ -43,6 +43,7 @@ namespace EventBus.Base.Events
         public virtual void Dispose()
         {
             EventBusConfig = null;
+            SubsManager.Clear();
         }
 
         public async Task<bool> ProcessEvent(string eventName, string message)

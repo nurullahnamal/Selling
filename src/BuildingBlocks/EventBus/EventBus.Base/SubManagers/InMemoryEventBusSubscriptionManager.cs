@@ -28,8 +28,7 @@ namespace EventBus.Base.SubManagers
 
         public void AddSubscription<T, TH>() where T : IntegrationEvent where TH : IIntegrationEventHandler<T>
         {
-            var eventName = GetEventKey<T>(); 
-            //
+            var eventName = GetEventKey<T>();
 
             AddSubscription(typeof(TH), eventName);
 
@@ -38,7 +37,7 @@ namespace EventBus.Base.SubManagers
                 _eventTypes.Add(typeof(T));
             }
         }
-        //
+
         private void AddSubscription(Type handlerType, string eventName)
         {
             if (!HasSubscriptionsForEvent(eventName))
@@ -129,5 +128,5 @@ namespace EventBus.Base.SubManagers
             string eventName = typeof(T).Name;
             return eventNameGetter(eventName);
         }
-}
+    }
 }

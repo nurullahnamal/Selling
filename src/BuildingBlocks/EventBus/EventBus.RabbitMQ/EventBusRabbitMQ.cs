@@ -1,12 +1,16 @@
-﻿using EventBus.Base;
-using EventBus.Base.Events;
-using Newtonsoft.Json;
-using Polly;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Exceptions;
+﻿using EventBus.Base.Events;
+using EventBus.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using Polly;
+using RabbitMQ.Client.Exceptions;
+using RabbitMQ.Client.Events;
 
 namespace EventBus.RabbitMQ
 {
@@ -84,13 +88,11 @@ namespace EventBus.RabbitMQ
             {
                 var properties = consumerChannel.CreateBasicProperties();
                 properties.DeliveryMode = 2; // persistent
-
                 consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while publishing
                                      durable: true,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
-
                 consumerChannel.BasicPublish(
                     exchange: EventBusConfig.DefaultTopicName,
                     routingKey: eventName,

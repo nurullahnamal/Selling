@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EventBus.Base.Abstraction
 {
-    public  interface IEventBusSubscriptionManager
+    public interface IEventBusSubscriptionManager
     {
         bool IsEmpty { get; }
 
@@ -30,6 +30,5 @@ namespace EventBus.Base.Abstraction
         IEnumerable<SubscriptionInfo> GetHandlersForEvent(string eventName);
 
         string GetEventKey<T>();
-
     }
 }
