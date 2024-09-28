@@ -88,6 +88,7 @@ namespace EventBus.RabbitMQ
             {
                 var properties = consumerChannel.CreateBasicProperties();
                 properties.DeliveryMode = 2; // persistent
+
                 consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while publishing
                                      durable: true,
                                      exclusive: false,
