@@ -12,6 +12,7 @@ namespace WebApp
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -31,6 +32,8 @@ namespace WebApp
                 .AddInteractiveServerRenderMode();
 
             app.Run();
+
+          
         }
     }
 }

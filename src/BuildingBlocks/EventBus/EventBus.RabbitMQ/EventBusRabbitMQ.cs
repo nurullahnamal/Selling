@@ -80,7 +80,6 @@ namespace EventBus.RabbitMQ
 
             consumerChannel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName, type: "direct"); // Ensure exchange exists while publishing
 
-
             var message = JsonConvert.SerializeObject(@event);
             var body = Encoding.UTF8.GetBytes(message);
 
@@ -89,11 +88,13 @@ namespace EventBus.RabbitMQ
                 var properties = consumerChannel.CreateBasicProperties();
                 properties.DeliveryMode = 2; // persistent
 
+
                 consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while publishing
                                      durable: true,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
+
                 consumerChannel.BasicPublish(
                     exchange: EventBusConfig.DefaultTopicName,
                     routingKey: eventName,
@@ -115,7 +116,7 @@ namespace EventBus.RabbitMQ
                     persistentConnection.TryConnect();
                 }
 
-                consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while consuming
+                consumerChannel.QueueDeclare(queue: GetSubName(eventName), 
                                      durable: true,
                                      exclusive: false,
                                      autoDelete: false,
