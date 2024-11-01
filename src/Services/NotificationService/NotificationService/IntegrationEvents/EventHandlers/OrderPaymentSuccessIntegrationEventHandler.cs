@@ -22,7 +22,7 @@ namespace NotificationService.IntegrationEvents.EventHandlers
 		public Task Handle(OrderPaymentSuccessIntegrationEvent @event)
 		{
 
-			logger.LogInformation($"Payment Success with order Id {@event.OrderId}");
+			logger.LogInformation($"Payment Success with order  Id {@event.OrderId}");
 			return Task.CompletedTask;
 		}
 	}
